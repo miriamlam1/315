@@ -12,17 +12,19 @@ public class lab2
    private static Map<String, String> registers = null;
    private static Map<String, String> instructions = null;
    private static Map<String, String> instructions2 = null;
-   private static Map<String, Integer> label_addresses = null;
+   private static Map<String, String> label_addresses = null;
 
    public static void main(String []args)
    {
       //File file = new File(args[0]);
-      File file = new File("divide.asm");
+      File file = new File("test1.asm");
       mapping();
       pass(file);
+      System.out.println("label prompt2 is"+label_addresses.get("prompt2:"));
    }
 
    public static void pass(File file){
+      
       try
       {
          Scanner scan = new Scanner(file);
@@ -32,7 +34,6 @@ public class lab2
             String line  = scan.nextLine();
             remove_comments(line, i);
             i++;
-            //System.out.println(line);
          }
          scan.close();
       }
@@ -44,18 +45,25 @@ public class lab2
       }
    }
 
-   public static String remove_comments(String line, int i){
+   public static int remove_comments(String line, int i){
       String[] words = line.split("\\s+");
+      String[] op = new String[6];
+      int j = 0; //counter for words
       for (String word : words) {
          if (word.contains("#")){
-            return line; //return 
+            return i;
          }
          if (word.contains(":")){
-            label_addresses.put(word, i);
+            System.out.println("key: "+ word + " value: "+ i);
+            label_addresses.put(word, Integer.toBinaryString(i));
          }
-         System.out.println(word);
+         else{
+            op[j]=word;
+            j++;
+         }
+         i++;
       }
-      return line;
+      return i;
    }
 
    public static void mapping()
@@ -63,6 +71,7 @@ public class lab2
       registers = new HashMap<String, String>();
       instructions = new HashMap<String, String>();
       instructions2 = new HashMap<String, String>();
+      label_addresses = new HashMap<String, String>();
 
       //map values for all registers
       registers.put("$0", "00000");
