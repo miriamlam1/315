@@ -1,0 +1,22 @@
+# Demo Program
+# 
+#   CPE 315
+
+
+# declare global so programmer can see actual addresses.
+
+
+#  Data Area (this area contains strings to be displayed during the program)
+
+main:
+
+
+   # $v0 now has the value of the second integer
+
+   # Display the sum text        
+   
+   # Display the sum
+   # load 1 into $v0 to display an integer         
+   add   $a0, $s0, $0
+
+
