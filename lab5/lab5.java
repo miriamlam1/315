@@ -92,6 +92,7 @@ public class lab5 {
         } catch (ArrayIndexOutOfBoundsException e) {
 
         }
+        System.out.println(line_count+Arrays.toString(in));
         String op = in[0];
         switch (op) {
             case "add":
@@ -100,7 +101,7 @@ public class lab5 {
                 break;
 
             case "sub":
-                register[r1] = register[r2] + register[r3];
+                register[r1] = register[r2] - register[r3];
                 line_count = line_count + 1;
                 break;
 
@@ -209,6 +210,14 @@ public class lab5 {
         scan.close();
     }
 
+    public static void print_datamem(){
+        for(int i=0;i< 8192; i+=2){
+            if(data_mem[i]!=0){
+                System.out.println("("+data_mem[i]+","+ data_mem[i+1]+")");
+            }
+        }
+    }
+
     public static void options(String input) {
         switch (input) {
             case "h":
@@ -226,6 +235,10 @@ public class lab5 {
                 return;
             case "b":
                 print_bresenham();
+                break;
+            case "o":
+                print_datamem();
+                break;
             case "q":
                 System.exit(1);
         }
