@@ -13,10 +13,12 @@ public class lab5 {
     private static Map<String, Integer> registers = null;
     private static int register[] = new int[32];
     private static int data_mem[] = new int[8192];
+    private static int GHR[];
     private static int line_count = 0;
-    private static int GHR = 2;
+    private static int GHR_size = 2;
     private static int correct_predictions = 0;
     private static int total_predictions = 0;
+    private static int predictions[];
 
     public static void main(String[] args) {
         mapping();
@@ -26,8 +28,12 @@ public class lab5 {
             scan_script = scanning(args[1]);
         }
         if (args.length > 2){
-            GHR = Integer.parseInt(args[2]);
+            GHR_size = Integer.parseInt(args[2]);
+
         }
+        GHR = new int[GHR_size];
+        
+        predictions = new int[(int)Math.pow(2,GHR_size)];
         first_pass(scan);
         scan.close();
         if (scan_script == null) {
@@ -73,6 +79,46 @@ public class lab5 {
         }
     }
 
+    /*public static void pipe_shift(String op)
+    {
+        for (int i = 3; i > 0; i--)
+        {
+            p[i] = p[i - 1];
+        }
+        p[0] = op;
+    }*/
+
+    // states 0 = nt, 1 = wnt, 2= wt, 3= st
+    public static void actual(int taken){
+        int j = 0;
+        for (int i =0 ; i<GHR_size; i++){ //convert the ghr to an int
+            j = 2* j + GHR[i];
+        }
+        //System.out.println(Arrays.toString(predictions));
+        int state = predictions[j];
+        if ((state <2 && taken ==0)||(state >1 && taken ==1)){
+            correct_predictions ++;
+        }
+        if (taken == 1){
+            if (state < 3)
+                state++;
+        }
+        if (taken == 0){
+            if (state > 0){
+                state--;
+            }
+        }
+        total_predictions++;
+        predictions[j] = state;
+
+        for (int i = 0; i < (GHR_size-1); i++)
+        {
+            GHR[i] = GHR[i+1];
+        }
+        GHR[GHR_size-1] = taken;
+        //System.out.println(Arrays.toString(GHR));
+    }
+
     // and, or, add, addi, sll, sub, slt, beq, bne, lw, sw, j, jr, jal
     public static int step() {
         if (instructions_addr.get(line_count) == null) {
@@ -112,8 +158,10 @@ public class lab5 {
 
             case "beq":
                 if (register[r1] == register[r2]) {
+                    actual(1);
                     line_count = labels_addr.get(in[3]);
                 } else {
+                    actual(0);
                     line_count++;
                 }
                 break;
@@ -121,8 +169,10 @@ public class lab5 {
             case "bne":
                 if (register[r1] != register[r2]) {
                     line_count = labels_addr.get(in[3]);
+                    actual(1);
                 } else {
                     line_count = line_count + 1;
+                    actual(0);
                 }
                 break;
 
@@ -264,15 +314,24 @@ public class lab5 {
         }
     }
 
+    public static void print_datamem(){
+        for(int i=0;i< 8192; i+=2){
+            if(data_mem[i]!=0){
+                System.out.println("("+data_mem[i]+","+ data_mem[i+1]+")");
+            }
+        }
+    }
+
     public static void print_bresenham(){
-        float accuracy = 0;
+        float accuracy;
         if(total_predictions == 0){
             accuracy = 0;
         } else{
-        accuracy = correct_predictions/total_predictions;
+        accuracy = ((float)correct_predictions/(float)total_predictions)*100;
         }
-        System.out.format("\naccuracy %.2f ", accuracy);
-        System.out.format("(%d correct predictions, %d predictions)", correct_predictions, total_predictions);
+        System.out.format("\naccuracy %.2f", accuracy);
+        System.out.print("% ");
+        System.out.format("(%d correct predictions, %d predictions)\n", correct_predictions, total_predictions);
     }
 
     public static void print_all(int pc) {
